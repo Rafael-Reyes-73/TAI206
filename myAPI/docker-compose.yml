@@ -7,4 +7,4 @@ services:
     volumes:
       - ./app:/app/app
     
-    command: uvicorn app.main:app --host 0.0.0.0 --port 5000 --reload
+    command: uvicorn app.miApiJWT:app --host 0.0.0.0 --port 5000 --reload
