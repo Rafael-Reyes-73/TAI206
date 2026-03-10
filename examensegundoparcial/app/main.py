@@ -5,6 +5,12 @@ from pydantic import BaseModel, Field
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import secrets
 
+app = FastAPI(
+    title='EXAMEN SEGUNDO PARCIAL',
+    description='Rafael de Jesus Reyes Chavez',
+    version='1.0'
+)
+
 pacientes = [
     {"id": 1, "nombre": "Karen", "edad": 21, "citas": 0},
     {"id": 2, "nombre": "Mely", "edad": 18, "citas": 0},
@@ -18,14 +24,13 @@ citas = [
 ]
 
 class PacienteBase(BaseModel):
-    id: int = Field(..., gt=0, description="Identificador de usuario", example=1)
-    nombre: str = Field(..., min_length=5, max_length=50, description="Nombre del usuario", example="axel")
+    id: int = Field(..., gt=0, description="Identificador de paciente", example=1)
+    nombre: str = Field(..., min_length=5, max_length=50, description="Nombre del paciente", example="Karen")
     edad: int = Field(..., ge=0, le=121, description="La edad de 0 a 121", example=21)
     
     
 class CitasBase(BaseModel):
     id: int = Field(..., gt=0, description="Identificador de citas", example=1)
-    nombre: str = Field(..., min_length=5, max_length=50, description="Nombre del usuario", example="axel")
     fecha: str = Field(..., min_length=5, max_length=50, description="fecha de citas", example="15/03/26")
     motivo: int = Field(..., ge=15, le=100, description="motivo no debe de exceder 100 caracteres", example="Me duele algo")
     confirmacion: bool = Field(..., True, False, description="La confirmacion debe de ser bool", example=False)
@@ -42,13 +47,6 @@ def verificar_paciente(credentials: HTTPBasicCredentials = Depends(security)):
             detail="Credenciales no validas",
         )
     return credentials.username
-
-app = FastAPI(
-    title='EXAMEN SEGUNDO PARCIAL',
-    description='Rafael de Jesus Reyes Chavez',
-    version='1.0'
-)
-
 
 
 @app.get("/v1/parametroO/{id}", tags=['Parametros Obligatorios'])
@@ -84,7 +82,7 @@ async def AgregarPacientes(paciente: PacienteBase):
     nuevo_paciente = paciente.model_dump() 
     pacientes.append(nuevo_paciente)
     return {
-        "mensaje": "Usuario agregado correctamente",
+        "mensaje": "Paciente agregado correctamente",
         "datos": nuevo_paciente,
         "status": 200
     } 
@@ -99,6 +97,10 @@ async def eliminar_paciente(id: int, username: str = Depends(verificar_paciente)
                 "datos": paciente_eliminado,
                 "status": 200
             }
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Paciente no encontrado"
+    )
 #-----------------------------------------       
 
 #-----------------------------------------   CITA
@@ -132,26 +134,13 @@ async def AgregarPacientes(paciente: PacienteBase):
 async def eliminar_cita(id: int, username: str = Depends(verificar_paciente)):
     for i, ci in enumerate(citas):
         if ci["id"] == id:
-            cita_eliminado = citas.pop(i)
+            cita_eliminada = citas.pop(i)
             return {
                 "mensaje": f"Cita eliminada correctamente por {username}",
-                "datos": cita_eliminado,
+                "datos": cita_eliminada,
                 "status": 200
-            }
-#-----------------------------------------      
-    
-    
-
+            } 
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
-        detail="Usuario no encontrado"
-    )
-
-
-
-
-
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Usuario no encontrado"
+        detail="Cita no encontrado"
     )
