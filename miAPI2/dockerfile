@@ -1,0 +1,26 @@
+FROM python:3.12-slim
+
+#crear carpeta de trabajo
+WORKDIR /app
+
+#Copia de los requerimientos
+COPY requirements.txt .
+
+#Instalacion de los requerimientos
+RUN pip install --no-cache-dir -r requirements.txt
+
+#Copia del codigo fuente
+COPY ./app ./app
+
+#Exponer el puerto
+EXPOSE 5000
+
+#Comando para ejecutar la FastAPI
+CMD ["uvicorn", "-m", "app.miApiJWT:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+
+
+
+
+
+
